@@ -55,8 +55,8 @@
       <fieldset>
         <legend>Error Calculator</legend>
         <input name="first-num" id="first-num" />
-        <select name="operator" id="operator">
-          <option>+</option>
+        <!-- <select name="operator" id="operator">
+          <option>+</option> -->
           <option>-</option>
           <option>*</option>
           <option>/</option>
@@ -88,20 +88,132 @@
   </main>
 
   <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log(`Global error caught: ${message} at line ${lineno}`);
+      return true;
+    };
+  </script>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+      window.TrackJS && TrackJS.install({ 
+        token: "a58545ed2f964bd9997180fbdf7a91e9"
+        // for more configuration options, see https://docs.trackjs.com
+      });
+  </script>
+  
+  <script>
+
+    class InvalidInputError extends Error {
+      constructor(input) {
+        super(`"${input}" is not a valid number`);
+        this.name = 'InvalidInputError';
+        this.input = input;
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
       let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
+        let operatorid = document.querySelector('#operator');
+
+        if(!operatorid) {
+          throw new Error('No element with operator id exists in DOM');
+        }
+
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new InvalidInputError(isNaN(firstNum) ? firstNum : secondNum);
+        }
+
+        let operator = document.querySelector('#operator').value;
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      } catch (e) {
+        if (e instanceof InvalidInputError) {
+          output.innerHTML = `Invalid input: ${e.input} is not a number`;
+          console.error('Custom error caught:', e);
+        } else {
+          output.innerHTML = `Error: ${e.message}`;
+          console.error('Standard error caught:', e);
+        } 
+      } finally {
+        console.log('Form submission attempted');
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Console log button');
+    });
+    errorBtns[1].addEventListener('click', () => {
+      console.error('Console error button');
+    });
+    errorBtns[2].addEventListener('click', () => {
+      console.count('Console Button Count');
+    });
+    errorBtns[3].addEventListener('click', () => {
+      console.warn('Console Warning Button');
+    });
+    errorBtns[4].addEventListener('click', () => {
+      const x = 2;
+      const reason = 'x does not equal 3';
+      console.assert(x === 3, {x, reason});
+    });
+    errorBtns[5].addEventListener('click', () => {
+      console.clear('Console was cleared');
+    });
+    errorBtns[6].addEventListener('click', () => {
+      console.dir(errorBtns[6]);
+    });
+    errorBtns[7].addEventListener('click', () => {
+      console.dirxml(errorBtns[7]);
+    });
+    errorBtns[8].addEventListener('click', () => {
+      console.group('Group Started');
+    });
+    errorBtns[9].addEventListener('click', () => {
+      console.groupEnd();
+    });
+    errorBtns[10].addEventListener('click', () => {
+      const consoleTable = [
+        {
+          1: 'This',
+          2: 'is',
+        },
+        {
+          1: 'a',
+          2: 'console',
+          3: 'table',
+        }
+      ];
+      console.table(consoleTable);
+    });
+    errorBtns[11].addEventListener('click', () => {
+      console.time('Timer Button');
+    });
+    errorBtns[12].addEventListener('click', () => {
+      console.timeEnd('Timer Button');
+    });
+    errorBtns[13].addEventListener('click', () => {
+      const button = () => { trace(); };
+      const trace = () => { consolee(); };
+      const consolee = () => { console.trace(); };
+      button();
+    });
+    errorBtns[14].addEventListener('click', () => {
+      setTimeout(() => {
+        throw new Error('Global error occurred');
+      }, 0);
+    });
+
+
   </script>
 </body>
 
